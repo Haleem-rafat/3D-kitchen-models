@@ -34,6 +34,13 @@ function App() {
     return () => clearTimeout(timer);
   }, []);
 
+  // Reset iframe loading when switching to reference tab
+  useEffect(() => {
+    if (activeTab === "reference") {
+      setIframeLoading(true);
+    }
+  }, [activeTab]);
+
   if (isLoading) {
     return <LoadingScreen />;
   }
