@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
 import {
   OrbitControls,
@@ -8,6 +8,7 @@ import {
 } from "@react-three/drei";
 import KitchenScene from "./components/KitchenScene";
 import ControlPanel from "./components/ControlPanel";
+import LoadingScreen from "./components/LoadingScreen";
 import { KitchenConfig } from "./types";
 
 function App() {
@@ -21,6 +22,21 @@ function App() {
   });
 
   const [activeTab, setActiveTab] = useState<"custom" | "reference">("custom");
+  const [isLoading, setIsLoading] = useState(true);
+  const [iframeLoading, setIframeLoading] = useState(true);
+
+  useEffect(() => {
+    // Simulate loading time for 3D assets
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 4000); // 4 seconds loading time
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
 
   return (
     <div className="w-screen h-screen bg-gray-900 relative">
@@ -134,7 +150,18 @@ function App() {
       {/* Sketchfab Reference Model - Responsive */}
       {activeTab === "reference" && (
         <div className="w-full h-full flex flex-col items-center justify-center p-2 sm:p-8">
-          <div className="w-full h-full bg-gray-800 rounded-lg shadow-2xl overflow-hidden">
+          <div className="w-full h-full bg-gray-800 rounded-lg shadow-2xl overflow-hidden relative">
+            {/* Loading overlay for iframe */}
+            {iframeLoading && (
+              <div className="absolute inset-0 bg-gray-800 flex items-center justify-center z-10">
+                <div className="text-center">
+                  <div className="w-16 h-16 border-4 border-gray-600 border-t-blue-500 rounded-full animate-spin mx-auto mb-4"></div>
+                  <p className="text-white text-lg">
+                    Loading Reference Model...
+                  </p>
+                </div>
+              </div>
+            )}
             <iframe
               title="Kitchen model room"
               frameBorder="0"
@@ -142,6 +169,7 @@ function App() {
               allow="autoplay; fullscreen; xr-spatial-tracking"
               className="w-full h-full"
               src="https://sketchfab.com/models/1207d0f361d74ea28990d344dfcd3f53/embed"
+              onLoad={() => setIframeLoading(false)}
             />
           </div>
           <p className="mt-2 sm:mt-4 text-xs sm:text-sm text-gray-400 text-center px-4">
